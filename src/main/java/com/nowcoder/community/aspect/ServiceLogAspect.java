@@ -27,12 +27,30 @@ public class ServiceLogAspect {
 
     @Before("pointcut()")
     public void before(JoinPoint joinPoint) {
-        // 用户[1.2.3.4],在[xxx],访问了[com.nowcoder.community.service.xxx()].
+
+        // 日志格式
+        // 用户[1.2.3.4],在[xxx],访问了[com.lzh0108.community.service.xxx.xxx()].
+
+        // 获取request对象
+        // 通过RequestContextHolder工具类获取request对象
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        // 如果是一个特殊的调用（不是来自页面的请求），则暂时不必记录日志
+        if (attributes == null) {
+            return;
+        }
         HttpServletRequest request = attributes.getRequest();
+
+        // 获取用户的ip地址
         String ip = request.getRemoteHost();
+
+        // 获取时间
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+
+        // 得到类名和方法名，前面是类名，后面是方法名
+        // joinPoint.getSignature().getDeclaringTypeName()得到类名
+        // joinPoint.getSignature().getName()得到方法名
         String target = joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName();
+
         logger.info(String.format("用户[%s],在[%s],访问了[%s].", ip, now, target));
     }
 
